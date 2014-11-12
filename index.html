@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>GlassFog 1</title>
+	<style type="text/css">
+		#myCanvasGlass {
+			position:absolute;
+			top:0;
+			left:0;
+			z-index:2;
+		}
+	</style>
+</head>
+
+<body style="margin:0; padding:0;">
+
+	<script type="text/javascript">
+		var myKonf = new (function () {
+			this.colorR = 255;
+			this.colorG = 255;
+			this.colorB = 255;
+			this.colorAMax = 0.75;
+
+			this.colorAMaxFF = Math.round(this.colorAMax * 255);
+
+			this.color = 'rgba(' + this.colorR + ',' + this.colorG + ',' + this.colorB + ',' + this.colorAMax + ')';
+			this.colorAnfang = 'rgba(' + this.colorR + ',' + this.colorG + ',' + this.colorB + ',0)';
+
+			this.fogSpeed = 1;
+			
+			this.clearRad = 30;
+		})();
+
+		var myCV;
+		var myCTX;
+		var obMouseDown = false;
+		
+		function main(){
+			drawBG();
+			createCanvas();
+
+			loop();
+		}
+
+		function drawBG() {
+			var myCanvas = document.createElement('canvas');
+
+			myCanvas.id = 'myCanvas';
+			myCanvas.width = window.innerWidth;
+			myCanvas.height = window.innerHeight;
+
+			document.body.appendChild(myCanvas);
+
+			var ctx = myCanvas.getContext('2d');
+
+			var myJB1 = ctx.createLinearGradient(0, myCanvas.height, myCanvas.width, 0);
+			myJB1.addColorStop(0, '#f8cd1f');
+			myJB1.addColorStop(0.5, '#1ff839');
+			myJB1.addColorStop(1, '#1ff8f0');
+
+			ctx.fillStyle = myJB1;
+			ctx.fillRect(0, 0, myCanvas.width, myCanvas.height);
+		}
+
+		function createCanvas() {
+			var myCanvasFB = document.createElement('canvas');
+
+			myCanvasFB.id = 'myCanvasGlass';
+			myCanvasFB.width = window.innerWidth;
+			myCanvasFB.height = window.innerHeight;
+			//myCanvasFB.style.display = 'none';
+			myCanvasFB.onmousedown = cStart;
+			myCanvasFB.onmousemove = clearGlass;
+			myCanvasFB.onmouseup = cEnd;
+			myCanvasFB.ontouchstart = cStart;
+			myCanvasFB.ontouchmove = clearGlass;
+			myCanvasFB.ontouchend = cEnd;
+
+			document.body.appendChild(myCanvasFB);
+
+			myCV = myCanvasFB;
+			myCTX = myCanvasFB.getContext('2d');
+
+			myCTX.fillStyle = myKonf.color;
+			myCTX.fillRect(0, 0, myCV.width, myCV.height);
+		}
+
+		function draw() {
+			var tmp = myCTX.getImageData(0, 0, myCV.width, myCV.height);
+			for (var i = 0; i < tmp.height * tmp.width; i++) {
+				tmp.data[4 * i] = myKonf.colorR;
+				tmp.data[4 * i + 1] = myKonf.colorG;
+				tmp.data[4 * i + 2] = myKonf.colorB;
+				tmp.data[4 * i + 3] = Math.min(tmp.data[4 * i + 3] + Math.ceil((255 - tmp.data[4 * i + 3]) / 128), myKonf.colorAMaxFF);
+			}
+			myCTX.putImageData(tmp, 0, 0);
+		}
+
+		function cStart(e) {
+		    e.preventDefault();
+
+		    var x = e.clientX || e.touches[0].pageX - e.target.offsetLeft;
+		    var y = e.clientY || e.touches[0].pageY - e.target.offsetTop;
+
+			myCTX.globalCompositeOperation = 'destination-out';
+
+			myCTX.lineWidth = myKonf.clearRad;
+			myCTX.lineCap = myCTX.lineJoin = 'round';
+
+			myCTX.beginPath();
+			myCTX.moveTo(x - 1, y);
+			myCTX.lineTo(x, y);
+			myCTX.stroke();
+
+			obMouseDown = true;
+		}
+
+		function clearGlass(e) {
+		    e.preventDefault();
+
+			if (obMouseDown) {
+			    var x = e.clientX || e.touches[0].pageX - e.target.offsetLeft;
+			    var y = e.clientY || e.touches[0].pageY - e.target.offsetTop;
+
+				myCTX.lineTo(x, y);
+				myCTX.stroke();
+			}
+		}
+
+		function cEnd(e) {
+		    e.preventDefault();
+
+			obMouseDown = false;
+			myCTX.closePath();
+		}
+
+		window.requestAnimFrame = (function () {
+			return window.requestAnimationFrame ||
+					window.webkitRequestAnimationFrame ||
+					window.mozRequestAnimationFrame ||
+					window.oRequestAnimationFrame ||
+					window.msRequestAnimationFrame ||
+					// fall back to the old setTimeout technique if nothing
+					// else is available
+					function (/* function */ callback, /* DOMElement */ element) {
+						window.setTimeout(callback, 1000 / 60);
+					};
+		})();
+
+		function loop() {
+		    if (obMouseDown == false) draw();
+			window.requestAnimFrame(loop);
+		}
+
+		window.onload = main;
+	</script>
+</body>
+</html>
