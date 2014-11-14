@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <script type="text/javascript" src="JS/jsqrcode-combined.min.js"></script>
+    <title>QRCode Reader</title>
+</head>
+<body>
+    <h1>QRCode Reader</h1>
+    <input type="file" id="IImage" accept="image/*" capture />
+    <br />
+    <br />
+    <div id="resultDiv"></div>
+
+    <script type="text/javascript">
+        var myFI = document.getElementById('IImage');
+
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object  
+            if (files[0]) {
+                var reader = new FileReader();
+                reader.readAsDataURL(files[0]);
+                reader.onload = loaded;
+            }
+        }
+
+        function loaded(evt) {
+            var tmpDataURL = evt.target.result;
+
+            qrcode.callback = function (data) { document.getElementById('resultDiv').innerText = data; };
+            qrcode.decode(tmpDataURL);
+        }
+
+        myFI.addEventListener('change', handleFileSelect, false);
+    </script>
+</body>
+</html>
