@@ -15,6 +15,7 @@
 
     <script type="text/javascript">
         var myFI = document.getElementById('IImage');
+        var myImage;
 
         function handleFileSelect(evt) {
             var files = evt.target.files; // FileList object  
@@ -28,8 +29,27 @@
         function loaded(evt) {
             var tmpDataURL = evt.target.result;
 
+            myImage = new Image();
+            myImage.onload = decodeFromDataURL;
+            myImage.src = tmpDataURL;
+        }
+
+        function decodeFromDataURL() {
             qrcode.callback = function (data) { document.getElementById('resultDiv').innerText = data; };
-            qrcode.decode(tmpDataURL);
+            qrcode.decode(getSmallImage(myImage, 500));
+        }
+
+        function getSmallImage(tmpImage, outputWidth) {
+            var tmpRatio = outputWidth / tmpImage.width;
+
+            var tmpCanvas = document.createElement('canvas');
+            tmpCanvas.width = tmpImage.width * tmpRatio;
+            tmpCanvas.height = tmpImage.height * tmpRatio;
+            
+            var tmpCTX = tmpCanvas.getContext('2d');
+            tmpCTX.drawImage(tmpImage, 0, 0, tmpCanvas.width, tmpCanvas.height);
+
+            return tmpCanvas.toDataURL('image/png');
         }
 
         myFI.addEventListener('change', handleFileSelect, false);
