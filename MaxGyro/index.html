@@ -74,7 +74,7 @@
 					<span id="xlabel">X: 0</span>
 					<span id="ylabel">Y: 0</span>
 					<span id="zlabel">Z: 0</span>
-					<span class="head">Statistk:</span>
+					<span class="head"><br />Statistk:</span>
 					<span>X</span>
 					<span id="xlabelStat">Max: 0</span>
 					<span><br />Y</span>
@@ -108,10 +108,10 @@
 				document.getElementById("yes").style.display="none";
 			} 
 			else {
-				window.ondevicemotion = function(event) {
-					ax = Math.round(event.accelerationIncludingGravity.x * 1000)/1000;
-					ay = Math.round(event.accelerationIncludingGravity.y * 1000)/1000;
-					az = Math.round(event.accelerationIncludingGravity.z * 1000)/1000;	
+				window.ondevicemotion = function(event) {console.log(event);
+					ax = Math.round(event.acceleration.x * 1000)/1000; //accelerationIncludingGravity
+					ay = Math.round(event.acceleration.y * 1000)/1000;
+					az = Math.round(event.acceleration.z * 1000)/1000;	
 
 					axMax = Math.max(ax, axMax);
 					axMin = Math.min(ax, axMin);
