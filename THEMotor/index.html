@@ -115,6 +115,7 @@
 
             setInterval(function () {
                 if (connectionStatus && motorStatus) {
+                    write(arGamma);
                     websocket.send(arGamma);
                 }
             }, delay);
