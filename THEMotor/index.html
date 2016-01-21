@@ -97,7 +97,7 @@
         }
 
         // Acceleration
-        var az = 0;
+        var arGamma = 0;
 
         var delay = 60;
         var vMultiplier = 0.01;
@@ -107,12 +107,15 @@
         }
         else {
             window.ondevicemotion = function (event) {
-                az = 70 - Math.round(event.acceleration.z);
+                rR = event.rotationRate;
+                if (rR != null) {
+                    arGamma = 70 - Math.round(rR.gamma);
+                }
             }
 
             setInterval(function () {
                 if (connectionStatus && motorStatus) {
-                    websocket.send(az);
+                    websocket.send(arGamma);
                 }
             }, delay);
         }
