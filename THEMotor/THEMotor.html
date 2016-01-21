@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+
+    <style type="text/css">
+        * {
+            font-size: 45px;
+        }
+
+        input {
+            margin: 10px;
+            width: 98%;
+            height: 150px;
+        }
+    </style>
+
+    <title>THE Motor</title>
+</head>
+<body>
+    <input id="serverAdressInput" type="text" value="ws://rbpm-desktop:9999"/><br />
+    <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><br />
+    <input id="motorSwitchBtn" type="button" value="Motor On" onclick="motorSwitch();"/><br />
+
+    <div id="consoleDiv">Welcome to THE Motor!</div>
+
+    <script type="text/javascript">
+        function write(str) {
+            var myConsole = document.getElementById('consoleDiv');
+
+            myConsole.innerHTML = str + '<br />' + myConsole.innerHTML;
+        }
+
+        var wsServer;
+        var websocket;
+
+        var connectionStatus = false;
+        var motorStatus = false;
+        
+        function connect() {
+            if (connectionStatus) {
+                websocket.send('XLV');
+                document.getElementById('connectBtn').value = 'Connect';
+            }
+            else {
+                wsServer = document.getElementById('serverAdressInput').value;
+
+                websocket = new WebSocket(wsServer);
+                websocket.onopen = function (evt) { onOpen(evt) };
+                websocket.onclose = function (evt) { onClose(evt) };
+                websocket.onmessage = function (evt) { onMessage(evt) };
+                websocket.onerror = function (evt) { onError(evt) };
+
+                document.getElementById('connectBtn').value = 'Connecting ...';
+            }
+        }
+
+        function motorSwitch() {
+            if (connectionStatus) {
+                websocket.send('XPW');
+
+                var tmpBtn = document.getElementById('motorSwitchBtn');
+
+                if (tmpBtn.value == 'Motor On') {
+                    motorStatus = true;
+                    tmpBtn.value = 'Motor Off';
+                }
+                else {
+                    motorStatus = false;
+                    tmpBtn.value = 'Motor On';
+                }
+            }
+        }
+
+        function onOpen(evt) {
+            connectionStatus = true;
+            document.getElementById('connectBtn').value = 'Disconnect';
+            document.getElementById('motorSwitchBtn').disabled = "";
+            write("Connected to WebSocket server.");
+        }
+
+        function onClose(evt) {
+            connectionStatus = false;
+            motorStatus = false;
+            document.getElementById('motorSwitchBtn').value = 'Motor Off';
+            document.getElementById('motorSwitchBtn').disabled = "disabled";
+            write("Disconnected");
+        }
+
+        function onMessage(evt) {
+            write('Retrieved data from server: ' + evt.data);
+        }
+
+        function onError(evt) {
+            write('Error occured: ' + evt.data);
+        }
+
+        // Acceleration
+        var az = 0;
+
+        var delay = 60;
+        var vMultiplier = 0.01;
+
+        if (window.DeviceMotionEvent == undefined) {
+            Write('Sorry, your device does not support the device motion feature!');
+        }
+        else {
+            window.ondevicemotion = function (event) {
+                az = 70 - Math.round(event.acceleration.z);
+            }
+
+            setInterval(function () {
+                if (connectionStatus && motorStatus) {
+                    websocket.send(az);
+                }
+            }, delay);
+        }
+    </script>
+</body>
+</html>
