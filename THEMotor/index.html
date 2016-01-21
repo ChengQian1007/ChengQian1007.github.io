@@ -97,7 +97,7 @@
         }
 
         // Acceleration
-        var arGamma = 0;
+        var gamma = 0;
 
         var delay = 60;
         var vMultiplier = 0.01;
@@ -106,17 +106,13 @@
             Write('Sorry, your device does not support the device motion feature!');
         }
         else {
-            window.ondevicemotion = function (event) {
-                rR = event.rotationRate;
-                if (rR != null) {
-                    arGamma = 70 - Math.round(rR.gamma);
-                }
+            window.ondeviceorientation = function (event) {
+                gamma = 70 - Math.round(event.gamma);
             }
 
             setInterval(function () {
                 if (connectionStatus && motorStatus) {
-                    write(arGamma);
-                    websocket.send(arGamma);
+                    websocket.send(gamma);
                 }
             }, delay);
         }
