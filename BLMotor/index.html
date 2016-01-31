@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+
+    <style type="text/css">
+        * {
+            font-size: 45px;
+        }
+
+        input {
+            margin: 10px;
+            width: 98%;
+            height: 150px;
+        }
+    </style>
+
+    <title>BLMotor</title>
+</head>
+<body>
+    <input type="range" id="motorSpeed" min="0" max="1000" value="0" disabled="disabled" />
+    <input id="serverAdressInput" type="text" value="ws://192.168.0.34:9999"/><br />
+    <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><br />
+
+    <div id="consoleDiv">Welcome to BL Motor!</div>
+
+    <script type="text/javascript">
+        function write(str) {
+            var myConsole = document.getElementById('consoleDiv');
+
+            myConsole.innerHTML = str + '<br />' + myConsole.innerHTML;
+        }
+
+        var wsServer;
+        var websocket;
+
+        var connectionStatus = false;
+        var motorStatus = false;
+        
+        function connect() {
+            document.getElementById('motorSpeed').value = 0;
+            if (connectionStatus) {
+                websocket.send('XLV');
+                document.getElementById('connectBtn').value = 'Connect';
+            }
+            else {
+                wsServer = document.getElementById('serverAdressInput').value;
+
+                websocket = new WebSocket(wsServer);
+                websocket.onopen = function (evt) { onOpen(evt) };
+                websocket.onclose = function (evt) { onClose(evt) };
+                websocket.onmessage = function (evt) { onMessage(evt) };
+                websocket.onerror = function (evt) { onError(evt) };
+
+                document.getElementById('connectBtn').value = 'Connecting ...';
+            }
+        }
+
+        function onOpen(evt) {
+            connectionStatus = true;
+            motorStatus = true;
+            document.getElementById('connectBtn').value = 'Disconnect';
+            document.getElementById('motorSpeed').disabled = '';
+            write("Connected to WebSocket server.");
+        }
+
+        function onClose(evt) {
+            connectionStatus = false;
+            motorStatus = false;
+            document.getElementById('motorSpeed').disabled = 'disabled';
+            write("Disconnected");
+        }
+
+        function onMessage(evt) {
+            write('Retrieved data from server: ' + evt.data);
+        }
+
+        function onError(evt) {
+            write('Error occured: ' + evt.data);
+        }
+
+        var delay = 60;
+
+        setInterval(function () {
+            if (connectionStatus && motorStatus) {
+                console.log(document.getElementById('motorSpeed').value);
+                websocket.send(document.getElementById('motorSpeed').value);
+            }
+        }, delay);
+
+
+
+    </script>
+</body>
+</html>
