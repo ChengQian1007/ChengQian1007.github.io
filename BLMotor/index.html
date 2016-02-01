@@ -3,6 +3,20 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" />-->
+    <meta name="viewport" content=" user-scalable=0;" />
+	
+	<!-- Run in full-screen mode. -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+
+	<!-- Make the status bar default. -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+	<!-- Customize home screen title. -->
+	<meta name="apple-mobile-web-app-title" content="Mega Motor" />
+
+    <!--Web App Logo-->
+    <link href="images/icon/apple-touch-icon.png" rel="apple-touch-icon" />
 
     <style type="text/css">
         * {
@@ -16,9 +30,9 @@
         }
 
         input[type=range]{
-            margin-top:300px;
-            margin-left:-200px;
-            width: 600px;
+            margin-top:194px;
+            margin-left:-170px;
+            width: 510px;
             height: 150px;
             -webkit-appearance: none;
             -webkit-transform:rotate(270deg);
@@ -53,7 +67,7 @@
 
     <title>BLMotor</title>
 </head>
-<body>
+<body style="overflow:hidden;">
     <div style="float:left; width:250px;">
         <input type="range" id="motorSpeed" min="0" max="1000" value="0" disabled="disabled" />
     </div>
