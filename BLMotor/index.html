@@ -23,10 +23,10 @@
             font-size: 45px;
         }
 
-        input {
+        input, select {
             margin: 10px;
             width: 98%;
-            height: 150px;
+            height: 100px;
         }
 
         input[type=range]{
@@ -73,6 +73,10 @@
     </div>
     <div style="float:left;">
         <input id="serverAdressInput" type="text" value="ws://172.20.10.7:9999"/><br />
+        <select id="serverAdressSelect" onchange="document.getElementById('serverAdressInput').value = document.getElementById('serverAdressSelect').value;">
+            <option value="ws://172.20.10.7:9999" selected="selected">ws://172.20.10.7:9999</option>
+            <option value="ws://192.168.0.34:9999">ws://192.168.0.34:9999</option>
+        </select><br />
         <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><br />
 
         <div id="consoleDiv">Welcome to BL Motor!</div>
