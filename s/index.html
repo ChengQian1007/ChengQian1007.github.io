@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>x</title>
+</head>
+<body>
+    <input type="button" value="abc" onclick="aaa();" />
+    <script type="text/javascript">
+        var clkOrDblClkTimerId = null;
+
+        function aaa(){
+            if (clkOrDblClkTimerId) {
+                clearTimeout(clkOrDblClkTimerId);
+                clkOrDblClkTimerId = null;
+                alert("double");
+            }
+            else{
+                clkOrDblClkTimerId = setTimeout(function () {
+                    clkOrDblClkTimerId = null;
+                    alert("single");
+                },300)}
+        }//onclick
+    </script>
+</body>
+</html>
