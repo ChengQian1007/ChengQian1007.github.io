@@ -207,6 +207,10 @@
         }
 
         function onClose(evt) {
+            connectionStatus = false;
+            motorStatus = false;
+            flagGeoHC = false;
+            flagRCHC = false;
             document.getElementById("Aux3").disabled = "disabled";
             document.getElementById("Aux4").disabled = "disabled";
             document.getElementById("levelModeBtn").disabled = "disabled";
