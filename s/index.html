@@ -22,21 +22,38 @@
 </head>
 <body>
     <input type="button" value="abc" onclick="event.preventDefault(); aaa();" style="width:100px; height:100px;" />
+    <input id="aaa" type="button" value="abc" style="width:100px; height:100px;" />
     <script type="text/javascript">
         var clkOrDblClkTimerId = null;
 
-        function aaa(){
+        function aaa() {
             if (clkOrDblClkTimerId) {
                 clearTimeout(clkOrDblClkTimerId);
                 clkOrDblClkTimerId = null;
                 alert("double");
             }
-            else{
+            else {
                 clkOrDblClkTimerId = setTimeout(function () {
                     clkOrDblClkTimerId = null;
                     alert("single");
-                },1000)}
+                }, 1000)
+            }
         }//onclick
+
+        document.getElementById('aaa').ontouchstart = function (e) {
+            if (!tapped) { //if tap is not set, set up single tap
+                tapped = setTimeout(function () {
+                    tapped = null
+                    //insert things you want to do when single tapped
+                }, 300);   //wait 300ms then run single click code
+            } else {    //tapped within 300ms of last tap. double tap
+                clearTimeout(tapped); //stop single tap callback
+                tapped = null
+                //insert things you want to do when double tapped
+            }
+            e.preventDefault();
+        };
+
     </script>
 </body>
 </html>
