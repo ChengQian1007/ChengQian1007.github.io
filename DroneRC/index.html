@@ -106,7 +106,7 @@
         <input type="range" id="Aux3" min="1000" max="2000" value="1000" disabled="disabled" />
     </div>
     <div style="float:left;">
-        <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><input id="levelModeBtn" type="button" value="ANG" onclick=""/><br />
+        <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><input id="levelModeBtn" type="button" value="ANG"/><br />
         <table style="width:100%;margin-top:7px;">
             <tr style="width:100%;">
                 <td  style="width:36%;">
@@ -156,6 +156,9 @@
         var alpha = 0;
         var deltaAlpha = 0;
 
+        var clkOrDblClkTimerId = null;
+        var levelMode = 'ANG';
+
         function disarmAndDisconnect() {
             if (disarmTimerCurrent > disarmTimerTotal) {
                 websocket.close();
@@ -197,6 +200,7 @@
         function onOpen(evt) {
             connectionStatus = true;
             motorStatus = true;
+            levelMode = 'ANG';
             document.getElementById("connectBtn").value = "Disconnect";
             document.getElementById("Aux3").disabled = "";
             document.getElementById("Aux4").disabled = "";
@@ -240,6 +244,19 @@
         }
 
 
+        document.getElementById('aaa').onclick = function (e) {
+            if (!clkOrDblClkTimerId) {
+                clkOrDblClkTimerId = setTimeout(function () {
+                    clkOrDblClkTimerId = null;
+                    alert('Single');
+                }, 350);
+            } else {
+                clearTimeout(clkOrDblClkTimerId);
+                clkOrDblClkTimerId = null;
+                alert('Double');
+            }
+            e.preventDefault();
+        };
 
 
 
