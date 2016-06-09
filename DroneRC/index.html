@@ -106,7 +106,7 @@
         <input type="range" id="Aux3" min="1000" max="2000" value="1000" disabled="disabled" />
     </div>
     <div style="float:left;">
-        <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><input id="levelModeBtn" type="button" value="ANG"/><br />
+        <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><input id="levelModeBtn" type="button" value="ANG" ontouchstart="sss(event);"/><br />
         <table style="width:100%;margin-top:7px;">
             <tr style="width:100%;">
                 <td  style="width:36%;">
@@ -243,8 +243,7 @@
             return (Math.PI * iDeg / 180);
         }
 
-
-        document.getElementById("levelModeBtn").onclick = function (e) {
+        function sss(e) {
             if (!clkOrDblClkTimerId) {
                 clkOrDblClkTimerId = setTimeout(function () {
                     clkOrDblClkTimerId = null;
