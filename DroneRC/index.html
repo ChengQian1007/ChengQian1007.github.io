@@ -244,11 +244,19 @@
         }
 
 
-        document.getElementById('levelModeBtn').onclick = function (e) {
+        document.getElementById("levelModeBtn").onclick = function (e) {
             if (!clkOrDblClkTimerId) {
                 clkOrDblClkTimerId = setTimeout(function () {
                     clkOrDblClkTimerId = null;
-                    alert('Single');
+                    
+                    if (levelMode == "ANG") {
+                        levelMode = "ACC";
+                    }
+                    else {
+                        levelMode = "ANG";
+                    }
+
+                    document.getElementById("levelModeBtn").innerHTML = levelMode;
                 }, 350);
             } else {
                 clearTimeout(clkOrDblClkTimerId);
@@ -291,7 +299,7 @@
 
         setInterval(function () {
             if (connectionStatus && motorStatus) {
-                websocket.send(RCAux1 + "," + RCAux2 + "," + document.getElementById("Aux4").value + "," + document.getElementById("Aux3").value + ",1000," + (flagGeoHC ? 2000 : 1000) + ",1000,1000");
+                websocket.send(RCAux1 + "," + RCAux2 + "," + document.getElementById("Aux4").value + "," + document.getElementById("Aux3").value + "," + (levelMode == "ANG" ? 1000 : (levelMode == "HOR" ? 1500 : 2000)) + "," + (flagGeoHC ? 2000 : 1000) + ",1000,1000");
             }
         }, delay);
 
