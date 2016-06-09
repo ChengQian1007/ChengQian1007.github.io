@@ -256,7 +256,7 @@
                         levelMode = "ANG";
                     }
 
-                    document.getElementById("levelModeBtn").innerHTML = levelMode;
+                    document.getElementById("levelModeBtn").value = levelMode;
                 }, 350);
             } else {
                 clearTimeout(clkOrDblClkTimerId);
@@ -265,13 +265,6 @@
             }
             e.preventDefault();
         };
-
-
-
-
-
-
-
 
         if (window.DeviceMotionEvent == undefined) {
             write("Sorry, your device does not support the device motion feature!");
