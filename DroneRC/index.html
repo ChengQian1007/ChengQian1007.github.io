@@ -106,17 +106,17 @@
         <input type="range" id="Aux3" min="1000" max="2000" value="1000" disabled="disabled" />
     </div>
     <div style="float:left;">
-        <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><input id="levelModeBtn" type="button" value="ANG" ontouchstart="sss(event);"/><br />
+        <input id="connectBtn" type="button" value="Connect" onclick="connect();"/><input id="levelModeBtn" type="button" value="ANG" disabled="disabled" onmouseup="changeLevelMode(event);" ontouchend="changeLevelMode(event);"/><br />
         <table style="width:100%;margin-top:7px;">
             <tr style="width:100%;">
                 <td  style="width:36%;">
-                    <input id="GeoHCBtn" type="checkbox" disabled="disabled" onclick="flagGeoHC = this.checked; if (!this.checked) { document.getElementById('RCHCBtn').checked = false; flagRCHC = false;}"/>GeoHF
+                    <input id="GeoHCBtn" type="checkbox" disabled="disabled" onclick="flagGeoHC = this.checked; if (!this.checked) { document.getElementById('RCHCBtn').checked = false; flagRCHC = false; } switchHFADJBtnStatus();"/>GeoHF
                 </td>
                 <td style="width:31%;">
-                    <input id="RCHCBtn" type="checkbox" disabled="disabled" onclick="flagRCHC = this.checked; if (this.checked) { document.getElementById('GeoHCBtn').checked = true; flagGeoHC = true; RCHCDegree = 'init';}"/>RCHF
+                    <input id="RCHCBtn" type="checkbox" disabled="disabled" onclick="flagRCHC = this.checked; if (this.checked) { document.getElementById('GeoHCBtn').checked = true; flagGeoHC = true; RCHCDegree = 'init'; } switchHFADJBtnStatus();"/>RCHF
                 </td>
                 <td style="width:36%;">
-                    <input id="HFADJBtn" type="button" value="HF-ADJ" disabled="disabled" onclick=""/>
+                    <input id="HFADJBtn" type="button" value="HF-ADJ" disabled="disabled" onmouseup="beginHFADJ();" ontouchend="beginHFADJ();"/>
                 </td>
             </tr>
         </table>
@@ -151,6 +151,7 @@
 
         var flagGeoHC = false;
         var flagRCHC = false;
+        var flagHFADJ = false;
 
         var RCHCDegree = "init";
         var alpha = 0;
@@ -180,6 +181,10 @@
                 motorStatus = false;
                 flagGeoHC = false;
                 flagRCHC = false;
+                flagHFADJ = false;
+                levelMode = 'ANG';
+
+                document.getElementById("levelModeBtn").value = levelMode;
 
                 document.getElementById("connectBtn").value = "Disconnecting ...";
 
@@ -206,6 +211,7 @@
             document.getElementById("Aux4").disabled = "";
             document.getElementById("GeoHCBtn").disabled = "";
             document.getElementById("RCHCBtn").disabled = "";
+            document.getElementById("levelModeBtn").value = levelMode;
             document.getElementById("levelModeBtn").disabled = "";
             write("Connected to WebSocket server.");
         }
@@ -215,6 +221,8 @@
             motorStatus = false;
             flagGeoHC = false;
             flagRCHC = false;
+            flagHFADJ = false;
+            levelMode = 'ANG';
             document.getElementById("Aux3").disabled = "disabled";
             document.getElementById("Aux4").disabled = "disabled";
             document.getElementById("levelModeBtn").disabled = "disabled";
@@ -223,6 +231,8 @@
             document.getElementById("RCHCBtn").disabled = "disabled";
             document.getElementById("GeoHCBtn").checked = false;
             document.getElementById("RCHCBtn").checked = false;
+            document.getElementById("levelModeBtn").value = levelMode;
+            document.getElementById("levelModeBtn").disabled = "disabled";
             document.getElementById("connectBtn").value = "Connect";
             write("Disconnected");
         }
@@ -243,13 +253,13 @@
             return (Math.PI * iDeg / 180);
         }
 
-        function sss(e) {
+        function changeLevelMode(e) {
             if (!clkOrDblClkTimerId) {
                 clkOrDblClkTimerId = setTimeout(function () {
                     clkOrDblClkTimerId = null;
                     
                     if (levelMode == "ANG") {
-                        levelMode = "ACC";
+                        levelMode = "HOR";
                     }
                     else {
                         levelMode = "ANG";
@@ -260,10 +270,34 @@
             } else {
                 clearTimeout(clkOrDblClkTimerId);
                 clkOrDblClkTimerId = null;
-                alert('Double');
+
+                if (levelMode == "ACC") {
+                    levelMode = "HOR";
+                }
+                else {
+                    levelMode = "ACC";
+                }
+
+                document.getElementById("levelModeBtn").value = levelMode;
             }
             e.preventDefault();
         };
+
+        function switchHFADJBtnStatus() {
+            if (flagGeoHC || flagRCHC) {
+                document.getElementById("HFADJBtn").disabled = "";
+            }
+            else {
+                document.getElementById("HFADJBtn").disabled = "disabled";
+            }
+        }
+
+        function beginHFADJ() {
+            document.getElementById("HFADJBtn").value = "ADJ...";
+            flagHFADJ = true;
+            
+            setTimeout(function () { RCHCDegree = "init"; flagHFADJ = false; document.getElementById("HFADJBtn").value = "HF-ADJ"; }, 350);
+        }
 
         if (window.DeviceMotionEvent == undefined) {
             write("Sorry, your device does not support the device motion feature!");
@@ -291,7 +325,7 @@
 
         setInterval(function () {
             if (connectionStatus && motorStatus) {
-                websocket.send(RCAux1 + "," + RCAux2 + "," + document.getElementById("Aux4").value + "," + document.getElementById("Aux3").value + "," + (levelMode == "ANG" ? 1000 : (levelMode == "HOR" ? 1500 : 2000)) + "," + (flagGeoHC ? 2000 : 1000) + ",1000,1000");
+                websocket.send(RCAux1 + "," + RCAux2 + "," + document.getElementById("Aux4").value + "," + document.getElementById("Aux3").value + "," + (levelMode == "ANG" ? 1000 : (levelMode == "HOR" ? 1500 : 2000)) + "," + (flagHFADJC ? 1500 : (flagGeoH ? 2000 : 1000)) + ",1000,1000");
             }
         }, delay);
 
