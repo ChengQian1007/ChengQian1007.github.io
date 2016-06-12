@@ -123,6 +123,7 @@
 
         <div id="consoleDiv" style="padding-left:10px;margin-top:7px;">Welcome to UniDro!</div>
         <div style="width:675px;">
+            <input id="magBaroModeBtn" type="button" value="NONE" disabled="disabled" onmouseup="changeMagBaroMode(event);" ontouchend="changeMagBaroMode(event);" style="width:228px;margin-top:43px;font-size:38px;"/>
             <input type="range" id="Aux4" min="1000" max="2000" value="1500" disabled="disabled" onmouseup="this.value=1500;" ontouchend="this.value=1500;"/>
         </div>
     </div>
@@ -157,8 +158,11 @@
         var alpha = 0;
         var deltaAlpha = 0;
 
-        var clkOrDblClkTimerId = null;
-        var levelMode = 'ANG';
+        var levelModeDblClkTimer = null;
+        var levelMode = "ANG";
+
+        var magBaroMode = "NONE";
+        var magBaroModeDblClkTimer = null;
 
         function disarmAndDisconnect() {
             if (disarmTimerCurrent > disarmTimerTotal) {
@@ -182,9 +186,11 @@
                 flagGeoHC = false;
                 flagRCHC = false;
                 flagHFADJ = false;
-                levelMode = 'ANG';
+                levelMode = "ANG";
+                magBaroMode = "NONE";
 
                 document.getElementById("levelModeBtn").value = levelMode;
+                document.getElementById("magBaroModeBtn").value = magBaroMode;
 
                 document.getElementById("connectBtn").value = "Disconnecting ...";
 
@@ -205,7 +211,8 @@
         function onOpen(evt) {
             connectionStatus = true;
             motorStatus = true;
-            levelMode = 'ANG';
+            levelMode = "ANG";
+            magBaroMode = "NONE";
             document.getElementById("connectBtn").value = "Disconnect";
             document.getElementById("Aux3").disabled = "";
             document.getElementById("Aux4").disabled = "";
@@ -213,6 +220,8 @@
             document.getElementById("RCHCBtn").disabled = "";
             document.getElementById("levelModeBtn").value = levelMode;
             document.getElementById("levelModeBtn").disabled = "";
+            document.getElementById("magBaroModeBtn").value = magBaroMode;
+            document.getElementById("magBaroModeBtn").disabled = "";
             write("Connected to WebSocket server.");
         }
 
@@ -222,10 +231,10 @@
             flagGeoHC = false;
             flagRCHC = false;
             flagHFADJ = false;
-            levelMode = 'ANG';
+            levelMode = "ANG";
+            magBaroMode = "NONE";
             document.getElementById("Aux3").disabled = "disabled";
             document.getElementById("Aux4").disabled = "disabled";
-            document.getElementById("levelModeBtn").disabled = "disabled";
             document.getElementById("HFADJBtn").disabled = "disabled";
             document.getElementById("GeoHCBtn").disabled = "disabled";
             document.getElementById("RCHCBtn").disabled = "disabled";
@@ -233,6 +242,8 @@
             document.getElementById("RCHCBtn").checked = false;
             document.getElementById("levelModeBtn").value = levelMode;
             document.getElementById("levelModeBtn").disabled = "disabled";
+            document.getElementById("magBaroModeBtn").value = magBaroMode;
+            document.getElementById("magBaroModeBtn").disabled = "disabled";
             document.getElementById("connectBtn").value = "Connect";
             write("Disconnected");
         }
@@ -254,9 +265,9 @@
         }
 
         function changeLevelMode(e) {
-            if (!clkOrDblClkTimerId) {
-                clkOrDblClkTimerId = setTimeout(function () {
-                    clkOrDblClkTimerId = null;
+            if (!levelModeDblClkTimer) {
+                levelModeDblClkTimer = setTimeout(function () {
+                    levelModeDblClkTimer = null;
                     
                     if (levelMode == "ANG") {
                         levelMode = "HOR";
@@ -268,8 +279,8 @@
                     document.getElementById("levelModeBtn").value = levelMode;
                 }, 350);
             } else {
-                clearTimeout(clkOrDblClkTimerId);
-                clkOrDblClkTimerId = null;
+                clearTimeout(levelModeDblClkTimer);
+                levelModeDblClkTimer = null;
 
                 if (levelMode == "ACC") {
                     levelMode = "HOR";
@@ -279,6 +290,36 @@
                 }
 
                 document.getElementById("levelModeBtn").value = levelMode;
+            }
+            e.preventDefault();
+        };
+
+        function changeMagBaroMode(e) {
+            if (!magBaroModeDblClkTimer) {
+                magBaroModeDblClkTimer = setTimeout(function () {
+                    magBaroModeDblClkTimer = null;
+
+                    if (magBaroMode == "NONE") {
+                        magBaroMode = "MAG";
+                    }
+                    else {
+                        magBaroMode = "NONE";
+                    }
+
+                    document.getElementById("magBaroModeBtn").value = magBaroMode;
+                }, 350);
+            } else {
+                clearTimeout(magBaroModeDblClkTimer);
+                magBaroModeDblClkTimer = null;
+
+                if (magBaroMode == "MAG BARO") {
+                    magBaroMode = "MAG";
+                }
+                else {
+                    magBaroMode = "MAG BARO";
+                }
+
+                document.getElementById("magBaroModeBtn").value = magBaroMode;
             }
             e.preventDefault();
         };
@@ -325,7 +366,7 @@
 
         setInterval(function () {
             if (connectionStatus && motorStatus) {
-                websocket.send(RCAux1 + "," + RCAux2 + "," + document.getElementById("Aux4").value + "," + document.getElementById("Aux3").value + "," + (levelMode == "ANG" ? 1000 : (levelMode == "HOR" ? 1500 : 2000)) + "," + (flagHFADJ ? 1500 : (flagGeoHC ? 2000 : 1000)) + ",1000,1000");
+                websocket.send(RCAux1 + "," + RCAux2 + "," + document.getElementById("Aux4").value + "," + document.getElementById("Aux3").value + "," + (levelMode == "ANG" ? 1000 : (levelMode == "HOR" ? 1500 : 2000)) + "," + (flagHFADJ ? 1500 : (flagGeoHC ? 2000 : 1000)) + "," + (magBaroMode == "NONE" ? 1000 : (magBaroMode == "MAG" ? 1500 : 2000)) + ",1000");
             }
         }, delay);
 
