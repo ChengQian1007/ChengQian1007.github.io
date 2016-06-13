@@ -77,7 +77,11 @@
 						arAlpha = rR.alpha;
 						arBeta = rR.beta;
 						arGamma = rR.gamma;
-					}			
+					}		
+
+					vx += ax * ai;
+					vy += ay * ai;
+					vz += az * ai;
 				}
 								
 				window.ondeviceorientation = function(event) {
@@ -98,6 +102,10 @@
 					outputStr += "Alpha: " + alpha + "<br/>";
 					outputStr += "Beta: " + beta + "<br/>";
 					outputStr += "Gamma: " + gamma + "<br/>";
+					outputStr += "<br/>";
+					outputStr += "vx: " + vx  + "<br/>";
+					outputStr += "vy: " + vy + "<br/>";
+					outputStr += "vz: " + vz + "<br/>";
 					
 					document.getElementById("console").innerHTML = outputStr;
 				}
