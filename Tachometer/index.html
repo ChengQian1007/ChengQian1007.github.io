@@ -113,6 +113,12 @@
 				setInterval(loop, delay);
 			} 
 			</script> 
-		 
+		 <device type="media" onchange="update(this.data)"></device>
+<video autoplay></video>
+<script>
+  function update(stream) {
+    document.querySelector('video').src = stream.url;
+  }
+</script>
  
 </body></html>
