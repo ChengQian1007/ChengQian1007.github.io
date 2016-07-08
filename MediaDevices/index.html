@@ -1,0 +1,22 @@
+<html>
+<body>
+<script>
+if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+  document.body.innerHTML += "enumerateDevices() not supported.");
+}
+
+// List cameras and microphones.
+
+navigator.mediaDevices.enumerateDevices()
+  .then(function(devices) {
+    devices.forEach(function(device) {
+      document.body.innerHTML += (device.kind + ": " + device.label +
+        " id = " + device.deviceId);
+    });
+  })
+  .catch(function(err) {
+    document.body.innerHTML += (err.name + ": " + error.message);
+  });
+</script>
+</body>
+</html>
