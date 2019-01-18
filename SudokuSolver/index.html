@@ -48,7 +48,7 @@
 let video = document.getElementById('videoInput');
 let cap = new cv.VideoCapture(video);
 
-const FPS = 3;
+const FPS = 30;
 function processVideo() {
     try {
         if (!streaming) {
@@ -132,8 +132,13 @@ function processVideo() {
           if(joints_contours.size() <= 4) {
             continue;
           }
+          
+          let roi2 = new cv.Mat();
+          roi2 = rsz.roi(rect);
 
-          rois.push_back(rsz.roi(rect).clone());
+          let roi3 = roi2.clone();
+
+          rois.push_back(roi3);
 
           cv.rectangle(rsz, new cv.Point(rect.x, rect.y), new cv.Point(rect.x + rect.width, rect.y + rect.height), new cv.Scalar(0, 255, 0), 1, cv.LINE_AA, 0 );
 
@@ -142,6 +147,8 @@ function processVideo() {
           roi.delete();
           joints_hierarchy.delete();
           joints_contours.delete();
+          roi2.delete();
+          roi3.delete();
         }
 
         cv.imshow('canvasOutput', rsz);
