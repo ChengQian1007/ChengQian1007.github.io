@@ -114,8 +114,8 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
 
     this.startCamera = function(resolution, callback, videoId) {
         const constraints = {
-            'qvga': {width: {exact: 320}, height: {exact: 240}},
-            'vga': {width: {exact: 640}, height: {exact: 480}}};
+            'qvga': {facingMode: "environment", width: {exact: 320}, height: {exact: 240}},
+            'vga': {facingMode: "environment", width: {exact: 640}, height: {exact: 480}}};
         let video = document.getElementById(videoId);
         if (!video) {
             video = document.createElement('video');
@@ -147,7 +147,9 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
             this.video.removeEventListener('canplay', onVideoCanPlay);
         }
         if (this.stream) {
-            this.stream.getVideoTracks()[0].stop();
+            this.stream.getVideoTracks().forEach(track => {
+                track.stop();
+            });
         }
     };
 };
