@@ -50,7 +50,7 @@ let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
 let dst = new cv.Mat(video.height, video.width, cv.CV_8UC1);
 let cap = new cv.VideoCapture(video);
 
-const FPS = 30;
+const FPS = 5;
 function processVideo() {
     try {
         if (!streaming) {
@@ -60,10 +60,114 @@ function processVideo() {
             return;
         }
         let begin = Date.now();
+
         // start processing.
         cap.read(src);
-        cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
-        cv.imshow('canvasOutput', dst);
+
+        let rsz = src.clone();
+        //let rsz = new cv.Mat();
+        //let size = new cv.Size(800, 900);
+        //cv.resize(src, rsz, size);
+
+        let gray = new cv.Mat();
+        let grayInv = new cv.Mat();
+        cv.cvtColor(rsz, gray, cv.COLOR_RGBA2GRAY);
+        cv.bitwise_not(gray, grayInv);
+
+        let bw = new cv.Mat();
+        cv.adaptiveThreshold(grayInv, bw, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2);
+
+        let horizontal = bw.clone();
+        let vertical = bw.clone();
+
+        let scale = 15;
+
+        let horizontalsize = horizontal.cols / scale;
+
+        let horizontalStructure = new cv.Mat();
+        horizontalStructure = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(horizontalsize, 1));
+
+        cv.erode(horizontal, horizontal, horizontalStructure, new cv.Point(-1, -1));
+        cv.dilate(horizontal, horizontal, horizontalStructure, new cv.Point(-1, -1));
+
+        let verticalsize = vertical.rows / scale;
+
+        let verticalStructure = new cv.Mat();
+        verticalStructure = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(1, verticalsize));
+
+        cv.erode(vertical, vertical, verticalStructure, new cv.Point(-1, -1));
+        cv.dilate(vertical, vertical, verticalStructure, new cv.Point(-1, -1));
+
+        let mask = new cv.Mat();
+        cv.add(horizontal, vertical, mask);
+
+        let joints = new cv.Mat();
+        cv.bitwise_and(horizontal, vertical, joints);
+
+        let hierarchy = new cv.Mat();
+        let contours = new cv.MatVector();
+
+        cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE, new cv.Point(0, 0));
+
+        let rois = new cv.MatVector();
+
+        for (let i = 0; i < contours.size(); i++){
+          let cnt = contours.get(i);
+          let area = cv.contourArea(cnt);
+
+          if(area < 100) {
+            continue;
+          }
+
+          let tmp = new cv.Mat();
+          cv.approxPolyDP(cnt, tmp, 3, true);
+          let rect = cv.boundingRect(tmp);
+
+          let roi = new cv.Mat();
+          roi = joints.roi(rect);
+  
+          let joints_hierarchy = new cv.Mat();
+          let joints_contours = new cv.MatVector();
+          cv.findContours(roi, joints_contours, joints_hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+
+          if(joints_contours.size() <= 4) {
+            continue;
+          }
+
+          rois.push_back(rsz.roi(rect).clone());
+
+          cv.rectangle(rsz, new cv.Point(rect.x, rect.y), new cv.Point(rect.x + rect.width, rect.y + rect.height), new cv.Scalar(0, 255, 0), 1, cv.LINE_AA, 0 );
+
+          cnt.delete();
+          tmp.delete();
+          roi.delete();
+          joints_hierarchy.delete();
+          joints_contours.delete();
+        }
+
+        cv.imshow('canvasOutput', rsz);
+
+        //cv.imshow('canvasOutput', rois.get(0));
+        src.delete();
+        rsz.delete();
+        gray.delete();
+        grayInv.delete();
+        bw.delete();
+        horizontal.delete();
+        vertical.delete();
+        mask.delete();
+        joints.delete();
+        hierarchy.delete();
+        contours.delete();
+        rois.delete();
+
+
+
+
+
+
+
+
         // schedule the next one.
         let delay = 1000/FPS - (Date.now() - begin);
         setTimeout(processVideo, delay);
