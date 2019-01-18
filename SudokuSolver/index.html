@@ -14,7 +14,7 @@
     You can modify the code to investigate more.
 </p>
 <div>
-<div class="control"><button id="startAndStop">Start</button></div>
+<div class="control"><button id="startAndStop" disabled="disabled">Start</button></div>
 <textarea class="code" rows="29" cols="100" id="codeEditor" spellcheck="false"></textarea>
 </div>
 <p class="err" id="errorMessage"></p>
@@ -53,8 +53,8 @@ function processVideo() {
     try {
         if (!streaming) {
             // clean and stop.
-            src.delete();
-            dst.delete();
+            //src.delete();
+            //dst.delete();
             return;
         }
         let begin = Date.now();
