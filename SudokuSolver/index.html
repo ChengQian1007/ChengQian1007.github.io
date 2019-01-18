@@ -60,7 +60,7 @@ function processVideo() {
         let begin = Date.now();
 
         // start processing.
-        let src = new cv.Mat();
+        let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
         cap.read(src);
 
         let rsz = src.clone();
