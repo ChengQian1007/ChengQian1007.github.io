@@ -60,6 +60,8 @@ function processVideo() {
         let begin = Date.now();
 
         // start processing.
+        let oCanvasOutput = document.getElementById('canvasOutput');
+
         let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
         cap.read(src);
 
@@ -103,6 +105,10 @@ function processVideo() {
         let joints = new cv.Mat();
         cv.bitwise_and(horizontal, vertical, joints);
 
+        let bwInv = new cv.Mat();
+        cv.subtract(bw, mask, bwInv);
+        cv.bitwise_not(bwInv, bwInv);
+
         let hierarchy = new cv.Mat();
         let contours = new cv.MatVector();
 
@@ -134,7 +140,7 @@ function processVideo() {
           }
           
           let roi2 = new cv.Mat();
-          roi2 = rsz.roi(rect);
+          roi2 = bwInv.roi(rect);
 
           let roi3 = roi2.clone();
 
@@ -150,15 +156,64 @@ function processVideo() {
           roi2.delete();
           roi3.delete();
         }
+        
+        if (rois.size() != 1) {
+          cv.imshow(oCanvasOutput, rsz);
+        }
+        else {
+          let oRoi = rois.get(0);
 
-        cv.imshow('canvasOutput', rsz);
+          let unitWidth = oRoi.cols / 9;
+          let unitHeight = oRoi.rows / 9;
 
-        //cv.imshow('canvasOutput', rois.get(0));
+          let paddingProcent = 0.05;
+          
+          let sudokuStr = "";
+
+          for (let i=0;i<9;i++) {
+            for (let j=0;j<9;j++) {
+              let roiCellRect = new cv.Rect((j + paddingProcent) * unitWidth, (i + paddingProcent) * unitHeight, (1 - 2 * paddingProcent) * unitWidth, (1 - 2 * paddingProcent) * unitHeight);
+
+              let oRoiCell = new cv.Mat();
+              oRoiCell = oRoi.roi(roiCellRect);
+
+              if(1){
+                cv.imshow(oCanvasOutput, oRoiCell);
+                let ocrResultStr = OCRAD(oCanvasOutput, {numeric: true});
+                
+                ocrResultStr = ocrResultStr.trim();
+                
+                if (ocrResultStr.length == 1){
+                    let ocrResultInt = parseInt(ocrResultStr);
+
+                    if (isNaN(ocrResultInt)){
+                        sudokuStr += "0";
+                    }
+                    else {
+                        sudokuStr += ocrResultInt;
+                    }
+                }
+                else {
+                    sudokuStr += "0";
+                }
+                
+              }
+
+              oRoiCell.delete();
+            }
+          }
+
+          console.log(sudokuStr);
+
+          oRoi.delete();
+        }
+
         src.delete();
         rsz.delete();
         gray.delete();
         grayInv.delete();
         bw.delete();
+        bwInv.delete();
         horizontal.delete();
         vertical.delete();
         horizontalStructure.delete();
@@ -168,8 +223,6 @@ function processVideo() {
         hierarchy.delete();
         contours.delete();
         rois.delete();
-
-
 
 
 
