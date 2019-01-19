@@ -1,0 +1,35 @@
+.SudokuTable {
+    border-collapse: collapse;
+    border: 3px black solid;
+}
+
+.SudokuTable td {
+    width: 65px;
+    height: 65px;
+    border-right: 1px black solid;
+    border-bottom: 1px black solid;
+    vertical-align: middle;
+    text-align: center;
+    word-break: break-all;
+}
+
+.SudokuTable td:nth-child(3n+4) {
+    border-left: 3px black solid;
+}
+
+.SudokuTable tr:nth-child(3n+4) {
+    border-top: 3px black solid;
+}
+
+.SudokuTable .isQuiz,
+.SudokuTable .solved {
+    font-size: 42px;
+}
+
+.SudokuTable .solved {
+    color: green;
+}
+
+.SudokuTable .candidatesList {
+    color: #4286f4;
+}
