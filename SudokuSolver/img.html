@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Sudoku Video Solver</title>
+    <title>Sudoku Image Solver</title>
     <link href="js_example_style.css" rel="stylesheet" type="text/css">
     <style>
         .SudokuTable {
@@ -39,21 +39,29 @@
 </head>
 <body>
     <div>
-        <textarea class="code" rows="12" cols="100" id="codeEditor" spellcheck="false"></textarea>
+        <textarea class="code" rows="9" cols="100" id="codeEditor" spellcheck="false"></textarea>
         <div class="control">
-            <button id="startAndStop" disabled="disabled">Start</button>
-        </div>
+            <button id="tryIt">Try it</button></div>
+        <p class="err" id="errorMessage"></p>
     </div>
-    <p class="err" id="errorMessage"></p>
     <div>
         <table cellpadding="0" cellspacing="0" width="0" border="0">
             <tbody>
                 <tr>
                     <td>
-                        <video id="videoInput" width="320" height="240"></video>
+                        <canvas id="canvasInput" width="400" height="400"></canvas>
                     </td>
                     <td>
-                        <canvas id="canvasOutput" width="320" height="240"></canvas>
+                        <canvas id="canvasOutput"></canvas>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="caption">canvasInput
+                            <input type="file" id="fileInput" name="file" accept="image/*"></div>
+                    </td>
+                    <td>
+                        <div class="caption">canvasOutput</div>
                     </td>
                 </tr>
             </tbody>
@@ -61,8 +69,6 @@
     </div>
     <div id="sudokuWrapDiv"></div>
     <script src="ocrad.js"></script>
-    <script src="https://webrtc.github.io/adapter/adapter-5.0.4.js" type="text/javascript"></script>
-    <script src="utils.js" type="text/javascript"></script>
     <script>
         // *************************************************************************************************
         // * Classes
@@ -370,240 +376,188 @@
         let mySudoku = new Sudoku();
         mySudoku.createHTMLTable(document.getElementById("sudokuWrapDiv"));
     </script>
+    <script src="utils.js" type="text/javascript"></script>
     <script id="codeSnippet" type="text/code-snippet">
-        let video = document.getElementById("videoInput");
-        let cap = new cv.VideoCapture(video);
+		let oCanvasOutput = document.getElementById('canvasOutput');
 
-        const FPS = 30;
+		let src = cv.imread('canvasInput');
 
-        function processVideo() {
-	        try {
-		        if (!streaming) {
-			        // clean and stop.
-			        //src.delete();
-			        //dst.delete();
-			        return;
-		        }
-		        let begin = Date.now();
+		let rsz = src.clone();
+		//let rsz = new cv.Mat();
+		//let size = new cv.Size(800, 900);
+		//cv.resize(src, rsz, size);
 
-		        // start processing.
-		        let oCanvasOutput = document.getElementById('canvasOutput');
+		let gray = new cv.Mat();
+		let grayInv = new cv.Mat();
+		cv.cvtColor(rsz, gray, cv.COLOR_RGBA2GRAY);
+		cv.bitwise_not(gray, grayInv);
 
-		        let src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
-		        cap.read(src);
+		let bw = new cv.Mat();
+		cv.adaptiveThreshold(grayInv, bw, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2);
 
-		        let rsz = src.clone();
-		        //let rsz = new cv.Mat();
-		        //let size = new cv.Size(800, 900);
-		        //cv.resize(src, rsz, size);
+		let horizontal = bw.clone();
+		let vertical = bw.clone();
 
-		        let gray = new cv.Mat();
-		        let grayInv = new cv.Mat();
-		        cv.cvtColor(rsz, gray, cv.COLOR_RGBA2GRAY);
-		        cv.bitwise_not(gray, grayInv);
+		let scale = 15;
 
-		        let bw = new cv.Mat();
-		        cv.adaptiveThreshold(grayInv, bw, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 15, -2);
+		let horizontalsize = horizontal.cols / scale;
 
-		        let horizontal = bw.clone();
-		        let vertical = bw.clone();
+		let horizontalStructure = new cv.Mat();
+		horizontalStructure = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(horizontalsize, 1));
 
-		        let scale = 15;
+		cv.erode(horizontal, horizontal, horizontalStructure, new cv.Point(-1, -1));
+		cv.dilate(horizontal, horizontal, horizontalStructure, new cv.Point(-1, -1));
 
-		        let horizontalsize = horizontal.cols / scale;
+		let verticalsize = vertical.rows / scale;
 
-		        let horizontalStructure = new cv.Mat();
-		        horizontalStructure = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(horizontalsize, 1));
+		let verticalStructure = new cv.Mat();
+		verticalStructure = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(1, verticalsize));
 
-		        cv.erode(horizontal, horizontal, horizontalStructure, new cv.Point(-1, -1));
-		        cv.dilate(horizontal, horizontal, horizontalStructure, new cv.Point(-1, -1));
+		cv.erode(vertical, vertical, verticalStructure, new cv.Point(-1, -1));
+		cv.dilate(vertical, vertical, verticalStructure, new cv.Point(-1, -1));
 
-		        let verticalsize = vertical.rows / scale;
+		let mask = new cv.Mat();
+		cv.add(horizontal, vertical, mask);
 
-		        let verticalStructure = new cv.Mat();
-		        verticalStructure = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(1, verticalsize));
+		let joints = new cv.Mat();
+		cv.bitwise_and(horizontal, vertical, joints);
 
-		        cv.erode(vertical, vertical, verticalStructure, new cv.Point(-1, -1));
-		        cv.dilate(vertical, vertical, verticalStructure, new cv.Point(-1, -1));
+		let bwInv = new cv.Mat();
+		cv.subtract(bw, mask, bwInv);
+		cv.bitwise_not(bwInv, bwInv);
 
-		        let mask = new cv.Mat();
-		        cv.add(horizontal, vertical, mask);
+		let hierarchy = new cv.Mat();
+		let contours = new cv.MatVector();
 
-		        let joints = new cv.Mat();
-		        cv.bitwise_and(horizontal, vertical, joints);
+		cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE, new cv.Point(0, 0));
 
-		        let bwInv = new cv.Mat();
-		        cv.subtract(bw, mask, bwInv);
-		        cv.bitwise_not(bwInv, bwInv);
+		let rois = new cv.MatVector();
 
-		        let hierarchy = new cv.Mat();
-		        let contours = new cv.MatVector();
+		for (let i = 0; i < contours.size(); i++) {
+			let cnt = contours.get(i);
+			let area = cv.contourArea(cnt);
 
-		        cv.findContours(mask, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE, new cv.Point(0, 0));
+			if (area < 100) {
+				continue;
+			}
 
-		        let rois = new cv.MatVector();
+			let tmp = new cv.Mat();
+			cv.approxPolyDP(cnt, tmp, 3, true);
+			let rect = cv.boundingRect(tmp);
 
-		        for (let i = 0; i < contours.size(); i++) {
-			        let cnt = contours.get(i);
-			        let area = cv.contourArea(cnt);
+			let roi = new cv.Mat();
+			roi = joints.roi(rect);
 
-			        if (area < 100) {
-				        continue;
-			        }
+			let joints_hierarchy = new cv.Mat();
+			let joints_contours = new cv.MatVector();
+			cv.findContours(roi, joints_contours, joints_hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
 
-			        let tmp = new cv.Mat();
-			        cv.approxPolyDP(cnt, tmp, 3, true);
-			        let rect = cv.boundingRect(tmp);
+			if (joints_contours.size() <= 4) {
+				continue;
+			}
 
-			        let roi = new cv.Mat();
-			        roi = joints.roi(rect);
+			let roi2 = new cv.Mat();
+			roi2 = bwInv.roi(rect);
 
-			        let joints_hierarchy = new cv.Mat();
-			        let joints_contours = new cv.MatVector();
-			        cv.findContours(roi, joints_contours, joints_hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+			let roi3 = roi2.clone();
 
-			        if (joints_contours.size() <= 4) {
-				        continue;
-			        }
+			rois.push_back(roi3);
 
-			        let roi2 = new cv.Mat();
-			        roi2 = bwInv.roi(rect);
+			cv.rectangle(rsz, new cv.Point(rect.x, rect.y), new cv.Point(rect.x + rect.width, rect.y + rect.height), new cv.Scalar(0, 255, 0), 1, cv
+				.LINE_AA, 0);
 
-			        let roi3 = roi2.clone();
+			cnt.delete();
+			tmp.delete();
+			roi.delete();
+			joints_hierarchy.delete();
+			joints_contours.delete();
+			roi2.delete();
+			roi3.delete();
+		}
 
-			        rois.push_back(roi3);
+		if (rois.size() != 1) {
+			cv.imshow(oCanvasOutput, rsz);
+		} else {
+			let oRoi = rois.get(0);
 
-			        cv.rectangle(rsz, new cv.Point(rect.x, rect.y), new cv.Point(rect.x + rect.width, rect.y + rect.height), new cv.Scalar(0, 255, 0), 1, cv
-				        .LINE_AA, 0);
+			let unitWidth = oRoi.cols / 9;
+			let unitHeight = oRoi.rows / 9;
 
-			        cnt.delete();
-			        tmp.delete();
-			        roi.delete();
-			        joints_hierarchy.delete();
-			        joints_contours.delete();
-			        roi2.delete();
-			        roi3.delete();
-		        }
+			let paddingProcent = 0.05;
 
-		        if (rois.size() != 1) {
-			        cv.imshow(oCanvasOutput, rsz);
-		        } else {
-			        let oRoi = rois.get(0);
+			let sudokuStr = "";
 
-			        let unitWidth = oRoi.cols / 9;
-			        let unitHeight = oRoi.rows / 9;
+			for (let i = 0; i < 9; i++) {
+				for (let j = 0; j < 9; j++) {
+					let roiCellRect = new cv.Rect((j + paddingProcent) * unitWidth, (i + paddingProcent) * unitHeight, (1 - 2 * paddingProcent) *
+						unitWidth, (1 - 2 * paddingProcent) * unitHeight);
 
-			        let paddingProcent = 0.05;
+					let oRoiCell = new cv.Mat();
+					oRoiCell = oRoi.roi(roiCellRect);
 
-			        let sudokuStr = "";
+					if (1) {
+						cv.imshow(oCanvasOutput, oRoiCell);
+						let ocrResultStr = OCRAD(oCanvasOutput, {
+							numeric: true
+						});
 
-			        for (let i = 0; i < 9; i++) {
-				        for (let j = 0; j < 9; j++) {
-					        let roiCellRect = new cv.Rect((j + paddingProcent) * unitWidth, (i + paddingProcent) * unitHeight, (1 - 2 * paddingProcent) *
-						        unitWidth, (1 - 2 * paddingProcent) * unitHeight);
+						ocrResultStr = ocrResultStr.trim();
 
-					        let oRoiCell = new cv.Mat();
-					        oRoiCell = oRoi.roi(roiCellRect);
+						if (ocrResultStr.length == 1) {
+							let ocrResultInt = parseInt(ocrResultStr);
 
-					        if (1) {
-						        cv.imshow(oCanvasOutput, oRoiCell);
-						        let ocrResultStr = OCRAD(oCanvasOutput, {
-							        numeric: true
-						        });
+							if (isNaN(ocrResultInt)) {
+								sudokuStr += "0";
+							} else {
+								sudokuStr += ocrResultInt;
+							}
+						} else {
+							sudokuStr += "0";
+						}
 
-						        ocrResultStr = ocrResultStr.trim();
+					}
 
-						        if (ocrResultStr.length == 1) {
-							        let ocrResultInt = parseInt(ocrResultStr);
+					oRoiCell.delete();
+				}
+			}
 
-							        if (isNaN(ocrResultInt)) {
-								        sudokuStr += "0";
-							        } else {
-								        sudokuStr += ocrResultInt;
-							        }
-						        } else {
-							        sudokuStr += "0";
-						        }
+			mySudoku.setQuiz(sudokuStr);
+			mySudoku.solve();
 
-					        }
+			oRoi.delete();
+		}
 
-					        oRoiCell.delete();
-				        }
-			        }
+		src.delete();
+		rsz.delete();
+		gray.delete();
+		grayInv.delete();
+		bw.delete();
+		bwInv.delete();
+		horizontal.delete();
+		vertical.delete();
+		horizontalStructure.delete();
+		verticalStructure.delete();
+		mask.delete();
+		joints.delete();
+		hierarchy.delete();
+		contours.delete();
+		rois.delete();
 
-			        mySudoku.setQuiz(sudokuStr);
-			        mySudoku.solve();
-
-			        oRoi.delete();
-		        }
-
-		        src.delete();
-		        rsz.delete();
-		        gray.delete();
-		        grayInv.delete();
-		        bw.delete();
-		        bwInv.delete();
-		        horizontal.delete();
-		        vertical.delete();
-		        horizontalStructure.delete();
-		        verticalStructure.delete();
-		        mask.delete();
-		        joints.delete();
-		        hierarchy.delete();
-		        contours.delete();
-		        rois.delete();
-
-		        // schedule the next one.
-		        let delay = 1000 / FPS - (Date.now() - begin);
-		        setTimeout(processVideo, delay);
-	        } catch (err) {
-		        utils.printError(err);
-	        }
-        };
-
-        // schedule the first one.
-        setTimeout(processVideo, 0);
     </script>
-    <script type="text/javascript">
+    <script>
         let utils = new Utils('errorMessage');
 
         utils.loadCode('codeSnippet', 'codeEditor');
+        utils.addFileInputHandler('fileInput', 'canvasInput');
 
-        let streaming = false;
-        let videoInput = document.getElementById('videoInput');
-        let startAndStop = document.getElementById('startAndStop');
-        let canvasOutput = document.getElementById('canvasOutput');
-        let canvasContext = canvasOutput.getContext('2d');
-
-        startAndStop.addEventListener('click', () => {
-            if (!streaming) {
-                utils.clearError();
-        utils.startCamera('qvga', onVideoStarted, 'videoInput');
-        } else {
-            utils.stopCamera();
-            onVideoStopped();
-        }
-        });
-
-        function onVideoStarted() {
-            streaming = true;
-            startAndStop.innerText = 'Stop';
-            videoInput.width = videoInput.videoWidth;
-            videoInput.height = videoInput.videoHeight;
+        let tryIt = document.getElementById('tryIt');
+        tryIt.addEventListener('click', () => {
             utils.executeCode('codeEditor');
-        }
-
-        function onVideoStopped() {
-            streaming = false;
-            canvasContext.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
-            startAndStop.innerText = 'Start';
-        }
+        });
 
         utils.loadOpenCv(() => {
-            startAndStop.removeAttribute('disabled');
+            tryIt.removeAttribute('disabled');
         });
     </script>
-
-
 </body>
 </html>
