@@ -39,10 +39,10 @@
 </head>
 <body>
     <div>
+        <textarea class="code" rows="12" cols="100" id="codeEditor" spellcheck="false"></textarea>
         <div class="control">
             <button id="startAndStop" disabled="disabled">Start</button>
         </div>
-        <textarea class="code" rows="29" cols="100" id="codeEditor" spellcheck="false"></textarea>
     </div>
     <p class="err" id="errorMessage"></p>
     <div>
@@ -55,13 +55,11 @@
                     <td>
                         <canvas id="canvasOutput" width="320" height="240"></canvas>
                     </td>
-                    <td>
-                        <div id="sudokuWrapDiv"></div>
-                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <div id="sudokuWrapDiv"></div>
     <script src="ocrad.js"></script>
     <script src="https://webrtc.github.io/adapter/adapter-5.0.4.js" type="text/javascript"></script>
     <script src="utils.js" type="text/javascript"></script>
