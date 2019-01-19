@@ -255,7 +255,7 @@ setTimeout(processVideo, 0);
     startAndStop.addEventListener('click', () => {
         if (!streaming) {
             utils.clearError();
-    utils.startCamera('qvga', onVideoStarted, 'videoInput');
+    utils.startCamera('vga', onVideoStarted, 'videoInput');
     } else {
         utils.stopCamera();
         onVideoStopped();
