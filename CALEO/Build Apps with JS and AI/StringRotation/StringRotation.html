@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Rotation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .rotation {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rotate the string 'Google' in right direction</h1>
+    <div id="rotations"></div>
+
+    <script>
+        function rotateString(str, times) {
+            return str.slice(-times) + str.slice(0, -times);
+        }
+
+        const originalString = 'Google';
+        const rotationsContainer = document.getElementById('rotations');
+
+        for (let i = 0; i < originalString.length; i++) {
+            const rotatedString = rotateString(originalString, i);
+            const rotationElement = document.createElement('div');
+            rotationElement.className = 'rotation';
+            rotationElement.textContent = `${i + 1}. ${rotatedString}`;
+            rotationsContainer.appendChild(rotationElement);
+        }
+    </script>
+</body>
+</html>

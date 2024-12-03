@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Highlighter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+            width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button[type="submit"] {
+            background-color: #28a745;
+            color: white;
+        }
+        button#highlightButton {
+            background-color: #007bff;
+            color: white;
+            display: block;
+            margin: 20px auto;
+        }
+        table {
+            width: 60%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .remove-btn {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: lightblue;
+        }
+        .action-cell {
+            width: 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Item Highlighter</h1>
+    <form id="itemForm">
+        <input type="text" id="itemInput" placeholder="Enter item" required>
+        <button type="submit">Add Item</button>
+    </form>
+    <table id="itemTable">
+        <thead>
+            <tr>
+                <th>Items</th>
+                <th class="action-cell">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <button id="highlightButton">Highlight Random Item</button>
+
+    <script>
+        const itemForm = document.getElementById('itemForm');
+        const itemInput = document.getElementById('itemInput');
+        const itemTable = document.getElementById('itemTable').getElementsByTagName('tbody')[0];
+        const highlightButton = document.getElementById('highlightButton');
+
+        itemForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const newItem = itemInput.value.trim();
+            if (newItem) {
+                const newRow = itemTable.insertRow();
+                const newCell = newRow.insertCell(0);
+                newCell.textContent = newItem;
+
+                const removeCell = newRow.insertCell(1);
+                removeCell.classList.add('action-cell');
+                const removeBtn = document.createElement('span');
+                removeBtn.textContent = '🗑️';
+                removeBtn.classList.add('remove-btn');
+                removeBtn.addEventListener('click', function() {
+                    itemTable.deleteRow(newRow.rowIndex - 1);
+                });
+                removeCell.appendChild(removeBtn);
+
+                itemInput.value = '';
+            }
+        });
+
+        highlightButton.addEventListener('click', function() {
+            const rows = itemTable.getElementsByTagName('tr');
+            if (rows.length > 0) {
+                // Remove all existing highlights
+                for (let row of rows) {
+                    row.classList.remove('highlight');
+                }
+
+                const randomIndex = Math.floor(Math.random() * rows.length);
+                let currentIndex = 0;
+
+                const highlightNextRow = () => {
+                    if (currentIndex > 0) {
+                        rows[currentIndex - 1].classList.remove('highlight');
+                    }
+                    rows[currentIndex].classList.add('highlight');
+
+                    if (currentIndex === randomIndex) {
+                        return;
+                    }
+
+                    currentIndex++;
+                    setTimeout(highlightNextRow, 100);
+                };
+
+                highlightNextRow();
+            }
+        });
+    </script>
+</body>
+</html>
