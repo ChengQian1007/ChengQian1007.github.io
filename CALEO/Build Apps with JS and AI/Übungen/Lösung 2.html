@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+  <p id="p0">CALEO JavaScript Training</p>
+  <div id="div1">
+    <p id="p1">This is a paragraph.</p>
+    <p id="p2">This is another paragraph.</p>
+  </div>
+  <script>
+    var newParagraph = document.createElement("p");
+    newParagraph.id = "p3";
+    newParagraph.textContent = "This is a new paragraph.";
+    document.getElementById("div1").appendChild(newParagraph);
+  </script>
+</body>
+
+</html>
