@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<style>
+  #myContainer {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    background: yellow;
+  }
+
+  #myAnimation {
+    width: 5px;
+    height: 5px;
+    position: absolute;
+    background-color: red;
+  }
+</style>
+
+<body>
+
+  <p id="p0">CALEO JavaScript Training</p>
+  <p>
+    <button onclick="myMove()">Click Me</button>
+  </p>
+
+  <div id="myContainer">
+    <div id="myAnimation"></div>
+  </div>
+
+  <script>
+    var id = null;
+    var pos = 0;
+    var direction = 1; // 1 for forward, -1 for backward
+    var elem = document.getElementById("myAnimation");
+
+    function frame() {
+      if (pos == 395) {
+        direction = -1;
+      }
+      else if (pos == 0) {
+        direction = 1;
+      }
+      pos += direction;
+      elem.style.top = pos + 'px';
+      elem.style.left = pos + 'px';
+    }
+
+    function myMove() {
+      clearInterval(id);
+      pos = 0;
+      direction = 1; // Reset direction to forward
+      id = setInterval(frame, 5);
+    }
+  </script>
+
+</body>
+
+</html>

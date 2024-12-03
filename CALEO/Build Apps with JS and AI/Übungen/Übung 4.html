@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<style>
+  #myContainer {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    background: yellow;
+  }
+
+  #myAnimation {
+    width: 5px;
+    height: 5px;
+    position: absolute;
+    background-color: red;
+  }
+</style>
+
+<body>
+
+  <p id="p0">CALEO JavaScript Training</p>
+  <p>
+    <button onclick="myMove()">Click Me</button>
+  </p>
+
+  <div id="myContainer">
+    <div id="myAnimation"></div>
+  </div>
+
+  <script>
+    var id = null;
+    var pos = 0;
+    var elem = document.getElementById("myAnimation");
+
+    function frame() {
+      if (pos == 395) {
+        clearInterval(id);
+      } else {
+        pos++;
+        elem.style.top = pos + 'px';
+        elem.style.left = pos + 'px';
+      }
+    }
+
+    function myMove() {
+      clearInterval(id);
+      
+      pos = 0;
+      id = setInterval(frame, 5);
+    }
+  </script>
+
+</body>
+
+</html>
