@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lösung 5</title>
+</head>
+
+<body>
+  <p id="demo"></p>
+
+  <script>
+    var str = "/masterUserset('JGRAETER')";
+
+    // Using substring and indexOf
+    var start = str.indexOf("(") + 2;
+    var end = str.indexOf(")") - 1;
+    var result1 = str.substring(start, end);
+
+    // Using replace
+    var result2 = str.replace("/masterUserset('", "").replace("')", "");
+
+    // Using regular expression
+    var result3 = str.match(/\('([^']+)'\)/)[1];
+
+    // Using split
+    var result4 = str.split("'")[1];
+
+    // Display the results
+    document.getElementById("demo").innerHTML = "Result1: " + result1 + "<br>Result2: " + result2 + "<br>Result3: " + result3 + "<br>Result4: " + result4;
+  </script>
+</body>
+
+</html>
