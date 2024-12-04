@@ -86,14 +86,28 @@
             let item = document.getElementById('item').value;
             let weight = parseInt(document.getElementById('weight').value);
             if (item && weight) {
-                let color = getRandomColor();
-                items.push({ item, weight, color });
-                updateItemList();
-                drawWheel();
-                document.getElementById('itemForm').reset();
-                document.getElementById('weight').value = 1;
+                addItemToList(item, weight);
             }
         }
+
+        function addItemToList(item, weight) {
+            let color = getRandomColor();
+            items.push({ item, weight, color });
+            updateItemList();
+            drawWheel();
+            document.getElementById('itemForm').reset();
+            document.getElementById('weight').value = 1;
+        }
+
+        document.getElementById('item').addEventListener('paste', function (event) {
+            event.preventDefault();
+            let paste = (event.clipboardData || window.clipboardData).getData('text');
+            let lines = paste.split('\n').map(line => line.trim()).filter(line => line);
+            lines.forEach(line => {
+                let weight = parseInt(document.getElementById('weight').value) || 1;
+                addItemToList(line, weight);
+            });
+        });
 
         function updateItemList() {
             let itemList = document.getElementById('itemList');
@@ -114,6 +128,16 @@
             document.getElementById('itemForm').reset();
             document.getElementById('weight').value = 1;
         }
+
+        document.getElementById('itemList').addEventListener('contextmenu', function (event) {
+            event.preventDefault();
+            if (event.target.tagName === 'LI') {
+                let itemText = event.target.textContent;
+                let itemName = itemText.substring(0, itemText.indexOf(' (Weight:'));
+                document.getElementById('item').value = itemName;
+                removeSelectedItem();
+            }
+        });
 
         function drawWheel() {
             ctx.clearRect(0, 0, wheel.width, wheel.height);
