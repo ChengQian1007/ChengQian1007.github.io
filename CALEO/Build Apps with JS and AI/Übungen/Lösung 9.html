@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lösung 9</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #animatedText {
+            font-size: 2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="animatedText">Google</div>
+
+    <script>
+        function rotateString(str, times) {
+            return str.slice(times) + str.slice(0, times);
+        }
+
+        const originalString = document.getElementById('animatedText').textContent;
+        const animatedText = document.getElementById('animatedText');
+        let currentRotation = 0;
+
+        function animateRotation() {
+            currentRotation = (currentRotation + 1) % originalString.length;
+            animatedText.textContent = rotateString(originalString, currentRotation);
+        }
+
+        setInterval(animateRotation, 200); // Change text every second
+    </script>
+</body>
+</html>
