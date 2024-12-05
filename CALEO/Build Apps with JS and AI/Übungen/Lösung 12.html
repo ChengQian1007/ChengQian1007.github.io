@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lösung 12</title>
+</head>
+
+<body>
+  <p id="demo"></p>
+
+  <form>
+    <label for="lon">Longitude:</label>
+    <input type="text" id="lon" name="lon"><br><br>
+
+    <label for="lat">Latitude:</label>
+    <input type="text" id="lat" name="lat"><br><br>
+
+    <label for="weather">Weather:</label>
+    <input type="text" id="weather" name="weather"><br><br>
+
+    <label for="description">Description:</label>
+    <input type="text" id="description" name="description"><br><br>
+
+    <label for="temp">Temperature:</label>
+    <input type="text" id="temp" name="temp"><br><br>
+
+    <label for="feels_like">Feels Like:</label>
+    <input type="text" id="feels_like" name="feels_like"><br><br>
+
+    <label for="temp_min">Min Temperature:</label>
+    <input type="text" id="temp_min" name="temp_min"><br><br>
+
+    <label for="temp_max">Max Temperature:</label>
+    <input type="text" id="temp_max" name="temp_max"><br><br>
+
+    <label for="pressure">Pressure:</label>
+    <input type="text" id="pressure" name="pressure"><br><br>
+
+    <label for="humidity">Humidity:</label>
+    <input type="text" id="humidity" name="humidity"><br><br>
+
+    <label for="visibility">Visibility:</label>
+    <input type="text" id="visibility" name="visibility"><br><br>
+
+    <label for="wind_speed">Wind Speed:</label>
+    <input type="text" id="wind_speed" name="wind_speed"><br><br>
+
+    <label for="wind_deg">Wind Degree:</label>
+    <input type="text" id="wind_deg" name="wind_deg"><br><br>
+
+    <label for="clouds">Clouds:</label>
+    <input type="text" id="clouds" name="clouds"><br><br>
+
+    <label for="sunrise">Sunrise:</label>
+    <input type="text" id="sunrise" name="sunrise"><br><br>
+
+    <label for="sunset">Sunset:</label>
+    <input type="text" id="sunset" name="sunset"><br><br>
+
+    <label for="timezone">Timezone:</label>
+    <input type="text" id="timezone" name="timezone"><br><br>
+
+    <label for="name">City Name:</label>
+    <input type="text" id="name" name="name"><br><br>
+
+    <label for="country">Country:</label>
+    <input type="text" id="country" name="country"><br><br>
+  </form>
+  <script>
+    fetch('https://api.openweathermap.org/data/2.5/weather?zip=82166,de&units=metric&appid=a8e9fadda131b75a451b368c72c56209')
+      .then(r => r.text())
+      .then(data => {
+        document.getElementById("demo").innerHTML = data;
+
+        const weatherData = JSON.parse(data);
+        document.getElementById('lon').value = weatherData.coord.lon;
+        document.getElementById('lat').value = weatherData.coord.lat;
+        document.getElementById('weather').value = weatherData.weather[0].main;
+        document.getElementById('description').value = weatherData.weather[0].description;
+        document.getElementById('temp').value = weatherData.main.temp;
+        document.getElementById('feels_like').value = weatherData.main.feels_like;
+        document.getElementById('temp_min').value = weatherData.main.temp_min;
+        document.getElementById('temp_max').value = weatherData.main.temp_max;
+        document.getElementById('pressure').value = weatherData.main.pressure;
+        document.getElementById('humidity').value = weatherData.main.humidity;
+        document.getElementById('visibility').value = weatherData.visibility;
+        document.getElementById('wind_speed').value = weatherData.wind.speed;
+        document.getElementById('wind_deg').value = weatherData.wind.deg;
+        document.getElementById('clouds').value = weatherData.clouds.all;
+        document.getElementById('sunrise').value = new Date(weatherData.sys.sunrise * 1000).toLocaleTimeString();
+        document.getElementById('sunset').value = new Date(weatherData.sys.sunset * 1000).toLocaleTimeString();
+        document.getElementById('timezone').value = weatherData.timezone;
+        document.getElementById('name').value = weatherData.name;
+        document.getElementById('country').value = weatherData.sys.country;
+      });
+  </script>
+</body>
+
+</html>
