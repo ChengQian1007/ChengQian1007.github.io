@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lösung 11.5</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Estimate Pi using Monte Carlo Method</h1>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <p>Estimated Pi: <span id="piValue">0</span></p>
+    <button onclick="estimatePi()">Start Estimation</button>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const piValue = document.getElementById('piValue');
+        const width = canvas.width;
+        const height = canvas.height;
+        const radius = width / 2;
+
+        function drawCircle() {
+            ctx.beginPath();
+            ctx.arc(radius, radius, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+        function estimatePi() {
+            let totalPoints = 0;
+            let pointsInsideCircle = 0;
+
+            function addPoint() {
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                totalPoints++;
+
+                const distance = Math.sqrt((x - radius) ** 2 + (y - radius) ** 2);
+                if (distance <= radius) {
+                    pointsInsideCircle++;
+                    ctx.fillStyle = 'green';
+                } else {
+                    ctx.fillStyle = 'red';
+                }
+
+                ctx.fillRect(x, y, 1, 1);
+
+                const piEstimate = (pointsInsideCircle / totalPoints) * 4;
+                piValue.textContent = piEstimate.toFixed(6);
+
+                if (totalPoints < 10000) {
+                    requestAnimationFrame(addPoint);
+                }
+            }
+
+            ctx.clearRect(0, 0, width, height);
+            drawCircle();
+            addPoint();
+        }
+
+        drawCircle();
+    </script>
+</body>
+</html>

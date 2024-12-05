@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Übung 11</title>
+</head>
+
+<body>
+    <h1>Estimate Pi using Monte Carlo Method</h1>
+    <p>Estimated Pi: <span id="piValue">0</span></p>
+    <button onclick="estimatePi()">Start Estimation</button>
+
+    <script>
+        function estimatePi(totalPoints = 1e8) {
+            // Your code here
+
+            const piEstimate = 3.14;
+            document.getElementById('piValue').textContent = piEstimate.toFixed(6);
+        }
+    </script>
+</body>
+
+</html>
