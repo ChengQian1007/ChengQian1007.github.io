@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lösung 10</title>
+</head>
+
+<body>
+  <h1>JavaScript Variable Values</h1>
+  <p>var a = 5 + 5; // <span id="valueA"></span></p>
+  <p>var b = "5" + 5 + 5; // <span id="valueB"></span></p>
+  <p>var c = 5 + "5" + 5; // <span id="valueC"></span></p>
+  <p>var d = 5 + 5 + "5"; // <span id="valueD"></span></p>
+  <p>var e = "Hello" + 5; // <span id="valueE"></span></p>
+
+  <script>
+    var a = 5 + 5;
+    var b = "5" + 5 + 5;
+    var c = 5 + "5" + 5;
+    var d = 5 + 5 + "5";
+    var e = "Hello" + 5;
+
+    document.getElementById("valueA").textContent = a;
+    document.getElementById("valueB").textContent = b;
+    document.getElementById("valueC").textContent = c;
+    document.getElementById("valueD").textContent = d;
+    document.getElementById("valueE").textContent = e;
+  </script>
+</body>
+
+</html>
